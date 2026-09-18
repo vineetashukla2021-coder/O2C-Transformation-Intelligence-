@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>O2C Transformation Intelligence</title>
+<title>O2C Transformation Intelligence | O2C Health Check</title>
 <style>
   :root{
     --bg:#0a0b0d;
@@ -65,8 +65,22 @@
     font-weight:400;
     font-size:clamp(30px,4.6vw,46px);
     letter-spacing:0.01em;
-    margin:0 0 18px;
+    margin:0 0 14px;
     color:var(--text);
+  }
+  p.brief-tag{
+    font-family:var(--sans);
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    color:var(--accent);
+    margin:0 0 8px;
+  }
+  p.brief-attribution{
+    font-size:12.5px;
+    color:var(--text-dim);
+    max-width:58ch;
+    margin:0 0 26px;
   }
   p.subtitle{
     font-family:var(--serif);
@@ -302,6 +316,19 @@
     color:var(--text-muted);
     margin-bottom:4px;
   }
+  footer.sitefoot .ft-copyright{
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px solid var(--border);
+    font-size:12px;
+    color:var(--text-muted);
+    letter-spacing:0.01em;
+  }
+  footer.sitefoot .ft-note{
+    margin-top:4px;
+    font-size:11.5px;
+    color:var(--text-dim);
+  }
 
   @media (max-width:640px){
     header.masthead{padding:48px 18px 28px;}
@@ -318,6 +345,8 @@
 <header class="masthead">
   <div class="kicker">O2C Transformation Intelligence</div>
   <h1 class="title">O2C TRANSFORMATION INTELLIGENCE</h1>
+  <p class="brief-tag">An O2C Health Check Research Brief</p>
+  <p class="brief-attribution">Research and analysis by O2C Health Check, based on publicly available information and current O2C/Finance sources.</p>
   <p class="subtitle">What is changing in Order-to-Cash — and what should transformation leaders be thinking about?</p>
   <p class="descriptor">A concise view of emerging O2C trends, AI opportunities, risks, technologies and transformation priorities.</p>
 </header>
@@ -340,6 +369,8 @@
 <footer class="sitefoot">
   <div class="ft-title">O2C Transformation Intelligence</div>
   <div>Independent research and strategic perspective on Order-to-Cash transformation.</div>
+  <div class="ft-copyright">© O2C Health Check | o2chealthcheck.com</div>
+  <div class="ft-note">This research brief is an original work of O2C Health Check. Sources are acknowledged within the brief.</div>
 </footer>
 
 <script>
