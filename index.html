@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O2C Transformation Intelligence</title>
+<style>
+  :root{
+    --bg:#0a0b0d;
+    --bg-panel:#121317;
+    --bg-card:#16171c;
+    --bg-card-hover:#1b1c22;
+    --border:rgba(255,255,255,0.08);
+    --border-strong:rgba(255,255,255,0.18);
+    --text:#eae8e3;
+    --text-muted:#a3a19c;
+    --text-dim:#706f6c;
+    --accent:#c9a75f;
+    --accent-soft:rgba(201,167,95,0.13);
+    --accent-line:rgba(201,167,95,0.35);
+    --teal:#6f9c95;
+    --teal-soft:rgba(111,156,149,0.14);
+    --amber:#c98a5f;
+    --amber-soft:rgba(201,138,95,0.14);
+    --radius:12px;
+    --serif:Georgia,'Iowan Old Style','Palatino Linotype',Palatino,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent);}
+  a:hover{color:#e0c07f;}
+  .skip-link{
+    position:absolute; left:-9999px; top:0; background:var(--accent); color:#111; padding:10px 16px; z-index:100; border-radius:0 0 6px 0;
+  }
+  .skip-link:focus{left:0;}
+
+  /* ---------- Header ---------- */
+  header.masthead{
+    padding:72px 24px 40px;
+    max-width:var(--maxw);
+    margin:0 auto;
+    border-bottom:1px solid var(--border);
+  }
+  .kicker{
+    font-family:var(--sans);
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:18px;
+    font-weight:600;
+  }
+  h1.title{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(30px,4.6vw,46px);
+    letter-spacing:0.01em;
+    margin:0 0 18px;
+    color:var(--text);
+  }
+  p.subtitle{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(17px,2.4vw,21px);
+    color:#cfcdc7;
+    margin:0 0 16px;
+    max-width:56ch;
+    font-weight:400;
+  }
+  p.descriptor{
+    font-size:15px;
+    color:var(--text-muted);
+    max-width:58ch;
+    margin:0;
+  }
+
+  /* ---------- Nav / Tabs ---------- */
+  nav.tabbar{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:rgba(10,11,13,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .tabbar-inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    display:flex;
+    gap:4px;
+    overflow-x:auto;
+    padding:0 16px;
+    scrollbar-width:thin;
+  }
+  .tabbar-inner::-webkit-scrollbar{height:4px;}
+  .tabbar-inner::-webkit-scrollbar-thumb{background:var(--border-strong);}
+  button.tab{
+    appearance:none;
+    background:transparent;
+    border:none;
+    color:var(--text-dim);
+    font-family:var(--sans);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    padding:18px 14px 15px;
+    cursor:pointer;
+    white-space:nowrap;
+    border-bottom:2px solid transparent;
+    transition:color .18s ease, border-color .18s ease;
+  }
+  button.tab:hover{color:var(--text-muted);}
+  button.tab[aria-selected="true"]{
+    color:var(--text);
+    border-bottom-color:var(--accent);
+  }
+  button.tab:focus-visible, .card-toggle:focus-visible, a:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+  .tab-num{color:var(--accent); margin-right:7px; font-weight:700;}
+
+  /* ---------- Main ---------- */
+  main{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:44px 24px 20px;
+  }
+  .section-head{
+    margin-bottom:28px;
+  }
+  .section-head h2{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(22px,3.2vw,30px);
+    margin:0 0 10px;
+    color:var(--text);
+  }
+  .section-head p{
+    color:var(--text-muted);
+    font-size:15px;
+    max-width:70ch;
+    margin:0;
+  }
+  .section-note{
+    background:var(--accent-soft);
+    border:1px solid var(--accent-line);
+    border-radius:var(--radius);
+    padding:14px 18px;
+    font-size:14px;
+    color:#e3d3ac;
+    margin-bottom:28px;
+    max-width:75ch;
+  }
+
+  /* ---------- Card grid ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:14px;
+  }
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    transition:border-color .18s ease, background .18s ease;
+  }
+  .card:hover{border-color:var(--border-strong); background:var(--bg-card-hover);}
+  .card-toggle{
+    width:100%;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    background:transparent;
+    border:none;
+    color:var(--text);
+    text-align:left;
+    padding:18px 20px;
+    cursor:pointer;
+    font-family:var(--sans);
+  }
+  .card-toggle-title{
+    font-size:15.5px;
+    font-weight:600;
+    line-height:1.4;
+  }
+  .card-badge{
+    display:inline-block;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:20px;
+    margin-top:8px;
+  }
+  .badge-assist{background:var(--teal-soft); color:var(--teal);}
+  .badge-act{background:var(--amber-soft); color:var(--amber);}
+  .chev{
+    flex:0 0 auto;
+    width:20px;height:20px;
+    color:var(--text-dim);
+    transition:transform .2s ease;
+    margin-top:2px;
+  }
+  .card-toggle[aria-expanded="true"] .chev{transform:rotate(45deg); color:var(--accent);}
+  .card-body{
+    padding:0 20px 20px;
+    font-size:14.5px;
+    color:var(--text-muted);
+  }
+  .card-body[hidden]{display:none;}
+  .card-body p{margin:0 0 10px;}
+  .card-body p:last-child{margin-bottom:0;}
+  .card-body .label{
+    display:block;
+    font-size:10.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:700;
+    margin:14px 0 4px;
+  }
+  .card-body .label:first-child{margin-top:0;}
+  .card-source{
+    display:block;
+    margin-top:12px;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  .card-source a{color:var(--text-dim); text-decoration:underline; text-decoration-color:var(--border-strong);}
+  .card-source a:hover{color:var(--accent);}
+
+  /* ---------- Leadership section ---------- */
+  .cluster{margin-bottom:32px;}
+  .cluster:last-child{margin-bottom:0;}
+  .cluster-title{
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    font-weight:700;
+    margin:0 0 12px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--border);
+  }
+
+  /* ---------- Sources ---------- */
+  .sources{
+    max-width:var(--maxw);
+    margin:40px auto 0;
+    padding:28px 24px 8px;
+    border-top:1px solid var(--border);
+  }
+  .sources h3{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:15px;
+    color:var(--text-muted);
+    margin:0 0 12px;
+    letter-spacing:0.02em;
+  }
+  .source-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 0;
+    padding:0;
+    margin:0;
+    list-style:none;
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .source-list li{margin:0;}
+  .source-list li:not(:last-child)::after{content:"  ·  "; color:var(--border-strong);}
+  .source-list a{color:var(--text-muted); text-decoration:none;}
+  .source-list a:hover{color:var(--accent); text-decoration:underline;}
+  .vendor-tag{color:var(--text-dim); font-style:italic;}
+
+  /* ---------- Footer ---------- */
+  footer.sitefoot{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:32px 24px 64px;
+    color:var(--text-dim);
+    font-size:12.5px;
+  }
+  footer.sitefoot .ft-title{
+    font-family:var(--serif);
+    font-size:14px;
+    color:var(--text-muted);
+    margin-bottom:4px;
+  }
+
+  @media (max-width:640px){
+    header.masthead{padding:48px 18px 28px;}
+    main{padding:32px 18px 8px;}
+    .sources{padding:24px 18px 8px;}
+    footer.sitefoot{padding:24px 18px 48px;}
+    .grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="masthead">
+  <div class="kicker">O2C Transformation Intelligence</div>
+  <h1 class="title">O2C TRANSFORMATION INTELLIGENCE</h1>
+  <p class="subtitle">What is changing in Order-to-Cash — and what should transformation leaders be thinking about?</p>
+  <p class="descriptor">A concise view of emerging O2C trends, AI opportunities, risks, technologies and transformation priorities.</p>
+</header>
+
+<nav class="tabbar" aria-label="Report sections">
+  <div class="tabbar-inner" role="tablist" id="tablist"></div>
+</nav>
+
+<main id="main-content">
+  <div class="section-head" id="section-head"></div>
+  <div class="section-note" id="section-note" hidden></div>
+  <div class="grid" id="section-content" role="tabpanel"></div>
+</main>
+
+<div class="sources">
+  <h3>Sources</h3>
+  <ul class="source-list" id="source-list"></ul>
+</div>
+
+<footer class="sitefoot">
+  <div class="ft-title">O2C Transformation Intelligence</div>
+  <div>Independent research and strategic perspective on Order-to-Cash transformation.</div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var SRC = {
+    pwc: "https://www.pwc.co.uk/services/value-creation/insights/working-capital-study.html",
+    gartner90: "https://www.gartner.com/en/newsroom/press-releases/2024-09-12-gartner-predicts-that-90-percent-of-finance-functions-will-deploy-at-least-one-ai-enabled-tech-solution-by-2026",
+    gartnerGov: "https://www.gartner.com/en/newsroom/new/pr-q-a-new-vis-template/2026-08-20-gartner-says-cfos-mus-pilot-governance-first-before-scaling-ai-agents",
+    joa: "https://www.journalofaccountancy.com/news/2026/feb/agentic-ai-is-handling-more-finance-work-but-can-cfos-trust-it/",
+    hackett: "https://www.thehackettgroup.com/the-hackett-group-establishes-ai-world-class-finance-benchmarks/",
+    kpmg: "https://kpmg.com/xx/en/media/press-releases/2026/05/ai-adoption-in-finance-doubles-but-assurance-readiness-determines-who-wins.html",
+    mckinsey: "https://www.mckinsey.com/capabilities/strategy-and-corporate-finance/our-insights/how-finance-teams-are-putting-ai-to-work-today",
+    nist: "https://www.nist.gov/itl/ai-risk-management-framework",
+    everest: "https://www.everestgrp.com/blogs/o2c-technology-in-2026-shifting-buyer-expectations-and-provider-priorities",
+    celonis: "https://www.celonis.com/insights/topics/what-is-process-mining",
+    highradius: "https://www.highradius.com/resources/Blog/order-to-cash-automation-processes-benefits-and-industry-insights/"
+  };
+
+  function srcLink(key, label){
+    return '<span class="card-source">Source: <a href="'+SRC[key]+'" target="_blank" rel="noopener noreferrer">'+label+'</a></span>';
+  }
+
+  var SECTIONS = [
+    {
+      id:"now",
+      label:"O2C Now",
+      type:"cards",
+      heading:"O2C Now",
+      intro:"The structural shifts already underway in Order-to-Cash — before AI is even part of the conversation.",
+      cards:[
+        {
+          title:"From Reporting to Decision Support",
+          body:"<p>Order-to-cash has historically been measured through backward-looking reports — DSO, aging buckets, cash forecasts delivered after the fact. That is shifting. O2C teams increasingly expect systems to surface what to do next: which account to call today, which invoice is likely to be disputed, which customer's risk profile just changed.</p><p>Gartner frames this as a human-machine collaboration model — AI handles pattern recognition and routine judgment at speed, people apply context and make the final call, and the loop tightens continuously. The bar for O2C tooling has moved from \"produce the number\" to \"suggest what to do about it,\" and the decision-maker is still, deliberately, a person for most calls that matter.</p>" + srcLink("gartner90","Gartner — 90% of Finance Functions Will Deploy AI by 2026")
+        },
+        {
+          title:"Working Capital Is Under Real Pressure",
+          body:"<p>Despite a decade of automation investment, global Days Sales Outstanding has not improved — it has worsened. PwC's latest Working Capital Study puts global DSO at 50.0 days, up 5.7% since 2015, with Asia alone seeing a 9.1% jump in the past two years. Across the roughly 17,000 companies PwC tracks, an estimated €1.84 trillion in working capital sits unnecessarily tied up.</p><p>The study's own framing is blunt: longer collection cycles should not be treated as a \"new normal.\" For transformation leaders, this reframes O2C from a back-office efficiency topic into a liquidity and resilience issue that deserves board-level attention.</p>" + srcLink("pwc","PwC — Working Capital Study 25/26")
+        },
+        {
+          title:"AI Has Moved Into the Transactional Core",
+          body:"<p>AI is no longer confined to pilots or dashboards — it now sits inside the transactional flow of O2C. Organizations benchmarked in Hackett Group's AI World Class research show automated credit decisions up 138%, straight-through payment matching up 89%, and invoice corrections down roughly 50% versus peers running conventional automation.</p><p>This is a meaningful shift from \"AI as an add-on analytics layer\" to \"AI as part of how the transaction gets processed.\" It also raises the stakes: when AI sits inside the transaction path rather than beside it, errors propagate faster and oversight design matters more, not less.</p>" + srcLink("hackett","The Hackett Group — AI World Class Finance Benchmarks")
+        },
+        {
+          title:"ERP, Workflow, Analytics and AI Are Converging",
+          body:"<p>The O2C technology stack is consolidating around fewer, more integrated layers. ERP vendors are embedding AI directly into the transactional backbone, while specialist O2C platforms increasingly compete on orchestration and intelligence rather than point automation alone.</p><p>Everest Group's 2026 review of O2C technology notes that buyer expectations have shifted toward integrated, AI-native platforms over best-of-breed point solutions stitched together after the fact. For transformation leaders, the practical implication is as much an architecture question as a process one: how much intelligence should live in the ERP core versus a purpose-built O2C layer.</p>" + srcLink("everest","Everest Group — O2C Technology in 2026 (industry analyst)")
+        },
+        {
+          title:"Transformation Now Has to Show Business Outcomes",
+          body:"<p>Tolerance for AI pilots that don't translate into measurable value is shrinking. McKinsey's research found that 44% of finance functions used generative AI for more than five use cases in 2025 — up from 7% the year before — and 65% of CFOs planned to increase gen AI spending. Yet nearly two-thirds of organizations still had not scaled AI enterprise-wide, largely because pilots stalled on integration and change management rather than on the technology itself.</p><p>O2C transformation is increasingly judged less on how much was automated and more on whether cash conversion, cost-to-serve, or customer experience actually moved.</p>" + srcLink("mckinsey","McKinsey — How Finance Teams Are Putting AI to Work Today")
+        }
+      ]
+    },
+    {
+      id:"ai",
+      label:"AI & Technology",
+      type:"cards",
+      heading:"AI & Technology",
+      intro:"Where AI is genuinely relevant in O2C today — and the line between AI that assists a person and AI that can initiate or execute an action on its own.",
+      note:"Every capability below sits somewhere on a spectrum from AI that assists a person to AI that can initiate or execute an action independently. That position — not the technology label — is what should drive the governance conversation. Badges mark where each use case sits today.",
+      cards:[
+        {
+          title:"Collections Prioritisation & Next-Best-Action",
+          badge:"assist",
+          badgeLabel:"AI Assists",
+          body:"<p>The most mature AI use case in O2C: models rank accounts by likelihood to pay, suggest contact timing and channel, and flag accounts drifting toward delinquency before they age. The AI's role is almost always advisory — it decides what a collector should look at first, not what gets said or committed to a customer.</p><p>Hackett's benchmarked organizations report collectors spending 83% more time actually engaging customers once low-value triage work is automated away, with average delinquent days falling 85%. The pattern worth noting: the biggest gains come from freeing human judgment for the conversations that need it, not from removing the conversation.</p>" + srcLink("hackett","The Hackett Group")
+        },
+        {
+          title:"Cash Application & Payment Matching",
+          badge:"act",
+          badgeLabel:"AI Can Act (within thresholds)",
+          body:"<p>Matching incoming payments to open invoices is largely deterministic once remittance data is captured, which is why it's the O2C process where autonomous execution is most accepted: machine learning plus OCR and email parsing can auto-apply a large share of payments without a person touching each one. Hackett reports an 89% improvement in automatic payment matching among AI-led organizations.</p><p>The reason this works with less oversight than other use cases is structural, not just technical: mismatches are self-evident — the ledger doesn't balance — and cheap to catch downstream, which is a different risk profile than a credit or dispute decision.</p>" + srcLink("hackett","The Hackett Group")
+        },
+        {
+          title:"Dispute & Deduction Classification",
+          badge:"assist",
+          badgeLabel:"AI Assists",
+          body:"<p>AI is increasingly used to classify incoming disputes and deductions, route them to the right owner, and surface a likely root cause from historical patterns — pricing error, shipping shortage, promotional deduction, and so on.</p><p>What typically stays human-controlled is the resolution itself: approving a credit memo, writing off a balance, or pushing back on a customer has direct P&amp;L and relationship consequences, so most organizations keep a person accountable for that step even as the triage and evidence-gathering around it become far faster. The classification-versus-resolution boundary is a useful lens for evaluating any AI dispute tool.</p>"
+        },
+        {
+          title:"Credit Risk Monitoring",
+          badge:"assist",
+          badgeLabel:"AI Assists",
+          body:"<p>Traditional credit management relies on periodic reviews — annual or quarterly limit resets based on financial statements that are already stale by the time they're used. AI-enabled monitoring instead watches for real-time signals — payment behavior drift, order pattern changes, external credit data — and flags accounts for review continuously rather than on a calendar.</p><p>The technology's role remains fundamentally advisory: it changes when a human looks at an account, not who sets the limit or approves the exposure. The transformation value is speed of detection, not delegation of the credit decision itself.</p>"
+        },
+        {
+          title:"Conversational AI, Copilots & Agentic Workflows",
+          badge:"act",
+          badgeLabel:"Assist today → Autonomy emerging",
+          body:"<p>Copilots that let a collector or credit analyst ask a natural-language question of O2C data are now common and low-risk — they retrieve and summarize, and a person still acts. Agentic workflows are a different proposition: software that can initiate a multi-step action, such as drafting and sending a dunning sequence or auto-approving a deduction under a threshold, with limited human touch.</p><p>Gartner's 2026 guidance to CFOs is explicit that a first AI agent deployment should be treated as a governance pilot, not an ROI initiative — success measured by traceability and control, not autonomy. This layer is genuinely promising and genuinely not yet a mature, low-oversight capability.</p>" + srcLink("gartnerGov","Gartner — CFOs Must Pilot Governance First Before Scaling AI Agents")
+        }
+      ]
+    },
+    {
+      id:"risks",
+      label:"O2C Risks",
+      type:"risk",
+      heading:"O2C Risks",
+      intro:"A practical risk view for transformation leaders — what each risk is, why it matters, and what to watch. Presented without fear-based framing.",
+      cards:[
+        {
+          title:"Ageing, Concentration & Credit Exposure",
+          what:"The classic O2C risk cluster — receivables ageing into higher-risk buckets, revenue concentrated in a small number of customers, and credit exposure that isn't reassessed often enough.",
+          why:"A handful of large accounts slipping simultaneously — a sector downturn, a single big customer's distress — can move DSO and bad-debt reserves more than any process inefficiency. PwC's data shows global DSO drifting upward across regions even before any single-customer shock.",
+          watch:"Whether your top-customer revenue concentration and each account's payment-behavior trend are visible in one place, refreshed continuously rather than at quarter-end.",
+          source:srcLink("pwc","PwC — Working Capital Study 25/26")
+        },
+        {
+          title:"Dispute Leakage & Process Fragmentation",
+          what:"Value lost when disputes and deductions aren't resolved, tracked, or recovered correctly — and the fragmented, multi-system processes that make that more likely.",
+          why:"Deductions taken by customers but never properly investigated quietly erode margin. Fragmented ownership across sales, billing, and collections means no single function sees the full pattern.",
+          watch:"Root-cause reporting on disputes — not just resolution-time reporting — and whether ownership of a dispute is clear from the moment it's raised."
+        },
+        {
+          title:"Data Quality & Process Visibility",
+          what:"Inconsistent customer and product master data, fragmented systems, and limited end-to-end visibility into how orders actually flow versus how they're documented to flow.",
+          why:"KPMG's 2026 research found more than a third of finance organizations cite data quality as simultaneously their biggest AI barrier and their biggest opportunity — AI amplifies whatever data discipline (or lack of it) already exists underneath it.",
+          watch:"Whether your organization can currently show how an order actually moves through its systems with evidence — for example, process mining output — rather than a process diagram someone drew once.",
+          source:srcLink("kpmg","KPMG — AI Adoption in Finance")
+        },
+        {
+          title:"AI Decision Accuracy, Explainability & Autonomy",
+          what:"The risk that AI-generated recommendations or actions are wrong, cannot be explained, or are trusted with more autonomy than their current accuracy justifies.",
+          why:"A 2026 CFO survey found 86% of finance teams had encountered inaccurate or \"hallucinated\" AI outputs, and two-thirds rated human oversight as extremely or very critical to accuracy. This is not a reason to avoid the technology — it's a reason to be precise about where each use case sits on the assist-to-autonomous spectrum.",
+          watch:"Whether every AI-influenced O2C decision can be traced back to the data and logic behind it, on demand.",
+          source:srcLink("joa","Journal of Accountancy — CFO Survey on Agentic AI")
+        },
+        {
+          title:"Security, Privacy & Adoption Risk",
+          what:"Exposure of sensitive customer financial and payment data as more systems and AI tools touch it, alongside the more mundane but equally real risk that people don't trust or use what's been built.",
+          why:"KPMG found that only 29% of organizations can currently track where their AI adoption is failing — meaning most have limited visibility into their own control gaps, let alone their people's confidence in the tools. Technology risk and adoption risk compound each other: a tool nobody trusts gets worked around, quietly reintroducing the manual risk it was meant to remove.",
+          watch:"Usage and override rates on AI-assisted tools, not accuracy metrics in isolation.",
+          source:srcLink("nist","NIST AI Risk Management Framework") + " · " + srcLink("kpmg","KPMG")
+        }
+      ]
+    },
+    {
+      id:"transformation",
+      label:"Transformation",
+      type:"transform",
+      heading:"Transformation",
+      intro:"Illustrative O2C transformation initiatives organizations are pursuing — problem, approach, and potential outcome. No single approach is presented as universally correct.",
+      cards:[
+        {
+          title:"Collections Transformation",
+          problem:"Generic, calendar-driven dunning treats a strategic account the same as a small, low-risk one, and collectors spend most of their time on manual triage rather than conversations.",
+          approach:"Behavioral segmentation and AI-ranked worklists direct human attention to the accounts and moments that matter; omnichannel contact (email, portal, phone) replaces a single fixed cadence.",
+          outcome:"Hackett's benchmarked organizations report collectors spending 83% more time on customer engagement and delinquent days falling 85% — though results vary by starting maturity and should be read as a benchmark ceiling, not a guarantee.",
+          source:srcLink("hackett","The Hackett Group")
+        },
+        {
+          title:"Dispute & Deduction Management Transformation",
+          problem:"Root-cause investigation for disputes is manual, slow, and rarely fed back to the upstream process — pricing, shipping, promotions — that caused the dispute in the first place.",
+          approach:"AI-assisted classification and evidence-gathering speed up investigation; analytics on dispute root cause is routed back to the originating function rather than staying inside collections.",
+          outcome:"Faster resolution cycle times and, over time, fewer disputes of the recurring, preventable kind — a leading indicator that's easy to under-invest in because it doesn't show up in this quarter's DSO."
+        },
+        {
+          title:"Cash Application Automation",
+          problem:"Unmatched or on-account cash sits unresolved, remittance data arrives in inconsistent formats (email, portal, EDI, paper), and manual research consumes disproportionate AR staff time.",
+          approach:"ML-based matching combined with OCR and email/remittance parsing auto-applies the high-confidence majority of payments, escalating genuine exceptions to a person.",
+          outcome:"Hackett reports an 89% improvement in automatic payment matching; the practical benefit is AR staff time redirected from repetitive matching to the exceptions that actually need judgment.",
+          source:srcLink("hackett","The Hackett Group")
+        },
+        {
+          title:"Credit Management Transformation",
+          problem:"Credit limits are set and reviewed on a fixed calendar, so risk changes between reviews go undetected until an invoice is already overdue.",
+          approach:"Continuous monitoring using internal payment behavior plus external credit and market signals feeds a workflow that flags accounts for review rather than waiting for the next cycle.",
+          outcome:"Earlier detection of deteriorating risk and faster, more consistent onboarding decisions — with the credit decision itself typically remaining a human sign-off given its financial exposure."
+        },
+        {
+          title:"Integrated O2C Control Towers & Operating Model Redesign",
+          problem:"Order, billing, credit, collections, and disputes are usually owned by different teams and systems, so no one has a single, current view of cash across the full cycle — and organizational design hasn't caught up with what's now technically possible.",
+          approach:"Process mining and process intelligence tools reconstruct how the process actually runs (not how it's documented), feeding a shared analytics layer; this is often paired with operating-model redesign that clarifies end-to-end ownership rather than function-by-function ownership.",
+          outcome:"A single, current view of cash-cycle performance and clearer accountability for the outcome, not just the individual handoffs — though this is the most organizationally difficult of the transformations listed here, and technology alone doesn't resolve it.",
+          source:srcLink("celonis","Celonis — Process Mining (vendor perspective)")
+        }
+      ]
+    },
+    {
+      id:"tools",
+      label:"Tools & Approaches",
+      type:"cards",
+      heading:"Tools & Approaches",
+      intro:"Technology organized by capability, not as a vendor ranking. Where vendors are named, they illustrate a category rather than a recommendation.",
+      cards:[
+        {
+          title:"ERP Platforms",
+          body:"<p>The system of record for orders, billing, and receivables, and increasingly where baseline AI capability is embedded directly rather than bolted on. SAP (S/4HANA, with its Joule AI layer) and Oracle Fusion are the two most common backbones in large-enterprise O2C, each now shipping embedded AI for tasks like credit scoring or collections prioritization.</p><p>The tradeoff to weigh: ERP-native AI is generally easier to govern and integrate but typically less specialized than purpose-built O2C tools. <span class=\"vendor-tag\">Vendor names refer to publicly available product capabilities, not an endorsement.</span></p>"
+        },
+        {
+          title:"Workflow, Orchestration & Specialist O2C Platforms",
+          body:"<p>A layer of purpose-built O2C software — providers such as HighRadius, Emagia, Esker, and Serrala — sits alongside the ERP to handle credit, collections, cash application, and dispute workflow with more depth than most ERP-native modules currently offer.</p><p>These platforms increasingly compete on orchestration and embedded AI rather than automating a single task in isolation. <span class=\"vendor-tag\">Vendor names are illustrative of the category, not a ranking.</span></p>" + srcLink("highradius","HighRadius (vendor perspective)")
+        },
+        {
+          title:"Process Mining & Process Intelligence",
+          body:"<p>Tools — Celonis and SAP Signavio are the most established — that reconstruct actual process flow from system event logs rather than relying on a documented process map, surfacing where orders, invoices, or disputes actually deviate from the intended path, and how much that deviation costs.</p><p>This is less about automating a task and more about seeing the process clearly enough to know what to automate or redesign first. <span class=\"vendor-tag\">Vendor names are illustrative.</span></p>" + srcLink("celonis","Celonis (vendor perspective)")
+        },
+        {
+          title:"Analytics, BI & Data Platforms",
+          body:"<p>The underlying layer that makes AI-driven O2C possible at all — consolidated, reasonably clean data plus the reporting and modeling tools (general-purpose BI tools and cloud data platforms) to make it usable.</p><p>This is the least visible category and, per KPMG's 2026 research, the one most organizations still name as their biggest constraint on scaling any of the more visible AI capabilities above it.</p>" + srcLink("kpmg","KPMG")
+        },
+        {
+          title:"Conversational AI, Copilots & Agentic Automation",
+          body:"<p>The fastest-moving and least standardized category: natural-language copilots for querying O2C data are now widely available and low-risk; agentic tools that can initiate multi-step actions independently are emerging but immature.</p><p>This is exactly the category Gartner is telling CFOs to pilot for governance readiness before pursuing at scale. Evaluate this category by its evidence of traceability and control, not by how advanced the demo looks.</p>" + srcLink("gartnerGov","Gartner")
+        }
+      ]
+    },
+    {
+      id:"leadership",
+      label:"Leadership Questions",
+      type:"leadership",
+      heading:"Leadership Questions",
+      intro:"Executive-level questions to structure O2C transformation thinking — framed to prompt discussion, not to supply a predetermined answer.",
+      clusters:[
+        {
+          name:"Value & Visibility",
+          questions:[
+            {q:"Where is O2C value currently being lost?", a:"Worth separating leakage that shows up in DSO (slow collection) from leakage that never reaches DSO at all — unrecovered deductions, write-offs absorbed quietly, or credit extended too generously to preserve a sales relationship. The second category is usually larger and less visible than the first."},
+            {q:"Which O2C decisions are still highly manual — and should they be?", a:"Not every manual decision is a transformation opportunity; some are manual because the judgment involved genuinely resists automation, such as a strategic account relationship or an unusual dispute. The useful question is which manual steps are manual by necessity versus by neglect."},
+            {q:"Where does data fragmentation prevent timely action?", a:"Fragmentation is often tolerated because each system works fine on its own — the cost only appears at the handoff, when nobody has the combined view needed to act quickly. Worth mapping where those handoffs sit before investing in any single system."}
+          ]
+        },
+        {
+          name:"AI Scope & Control",
+          questions:[
+            {q:"Which processes are genuinely suitable for AI augmentation right now?", a:"Suitability tends to track two things: how deterministic the underlying decision is, and how cheap an error is to catch and reverse. Cash application scores well on both; credit approval and dispute resolution score poorly on the second even when they score well on the first."},
+            {q:"Where should AI remain advisory rather than autonomous?", a:"A useful default: autonomy where errors are self-evident and reversible, advisory where they're not. That framing changes less with the sophistication of the AI than most vendors imply."},
+            {q:"How will AI decisions be validated, and by whom?", a:"Validation designed after deployment tends to be theatre. Gartner's governance-pilot guidance treats traceability and review design as the actual deliverable of a first AI agent project, not a compliance afterthought bolted on once it's live."},
+            {q:"What controls are required before automation is allowed to act rather than recommend?", a:"This is a smaller list than it sounds — clear boundaries, a defined escalation path, and someone accountable for reviewing outcomes are the recurring minimum across the governance guidance now emerging from Gartner, KPMG, and others. The gap is usually in enforcement, not in knowing what's needed."}
+          ]
+        },
+        {
+          name:"Operating Model",
+          questions:[
+            {q:"How should transformation value actually be measured?", a:"DSO and cost-per-invoice are necessary but incomplete — they don't capture customer experience, dispute recurrence, or the credit risk quietly building or shrinking in the portfolio. Worth deciding the fuller scorecard before the transformation starts, not after."},
+            {q:"What should be standardised globally versus optimised locally?", a:"Credit policy and control design usually benefit from standardization; collections tone, channel, and cadence often need local or segment-level flexibility. Treating the whole of O2C as one answer to this question is a common early misstep."},
+            {q:"What O2C capability should Finance build internally versus buy or outsource?", a:"The honest version of this question is about judgment capability, not headcount — an organization that outsources execution but keeps no internal capacity to interpret and challenge AI-driven recommendations has moved risk, not reduced it."}
+          ]
+        }
+      ]
+    },
+    {
+      id:"stop",
+      label:"What Could Stop It?",
+      type:"cards",
+      heading:"What Could Stop It?",
+      intro:"A transformation reality check. This section exists to keep the brief balanced rather than AI-promotional.",
+      cards:[
+        {
+          title:"Data",
+          body:"<p>Poor-quality, inconsistent, or missing data undermines any AI or analytics investment before it starts. Customer and product master data that differs across ERP instances, incomplete payment history, and inconsistent deduction reason codes are the unglamorous root cause behind a large share of failed O2C AI pilots.</p><p>KPMG's 2026 research found over a third of finance organizations name data quality as simultaneously their biggest constraint and their biggest opportunity. The practical implication: data remediation is not a prerequisite phase to get through quickly — it's an ongoing capability the transformation needs, because the data environment keeps changing after go-live.</p>" + srcLink("kpmg","KPMG")
+        },
+        {
+          title:"Process",
+          body:"<p>Fragmented workflows, unclear ownership across order, billing, credit, and collections, and a high volume of exceptions that never get standardized are process problems that technology alone doesn't fix — and can sometimes hide.</p><p>Automating a fragmented process typically just produces a faster, more consistent version of the fragmentation. The sequencing question worth asking early: how much process standardization needs to happen before automation, versus how much can reasonably wait until after.</p>"
+        },
+        {
+          title:"Technology",
+          body:"<p>Legacy ERP and AR systems, custom integrations built up over years, and genuine architecture constraints — data residency, system-of-record conflicts, licensing — shape what's realistically achievable on a given timeline.</p><p>Everest Group's 2026 review of O2C technology notes buyer expectations have shifted toward integrated platforms partly because the cost of stitching together point solutions has become clearer over time. Technology constraints are rarely fatal to a transformation, but they are routinely underestimated in early business cases.</p>" + srcLink("everest","Everest Group")
+        },
+        {
+          title:"AI",
+          body:"<p>Accuracy, explainability, and inappropriate autonomy are the specific AI risks, distinct from general technology risk. A 2026 CFO survey found 86% of finance teams had encountered inaccurate or hallucinated AI outputs, and two-thirds rated human oversight as extremely or very critical to trusting the results.</p><p>The risk isn't that AI is unreliable in some abstract sense — it's that autonomy is sometimes granted faster than the evidence for reliability justifies. Gartner's guidance to treat early AI agent deployments as governance pilots, not ROI projects, is a direct response to this pattern.</p>" + srcLink("joa","Journal of Accountancy")
+        },
+        {
+          title:"Governance",
+          body:"<p>Security, privacy, auditability, and accountability requirements grow as more systems and AI tools touch sensitive customer financial data. KPMG found that assurance-ready organizations achieve three to six times higher error-reduction rates than those without strong governance frameworks — yet fewer than half of organizations surveyed had reached that level of readiness.</p><p>Governance is frequently treated as the thing that slows a transformation down; the emerging evidence suggests it's closer to the thing that determines whether the transformation's gains are real or illusory.</p>" + srcLink("kpmg","KPMG") + " " + srcLink("nist","NIST AI RMF")
+        },
+        {
+          title:"People",
+          body:"<p>Adoption, operating-model change, and skills gaps are consistently underestimated relative to technology risk. A collections team that doesn't trust an AI-ranked worklist will quietly work around it; a credit team unfamiliar with continuous monitoring signals will revert to the quarterly review it replaced.</p><p>McKinsey's research points to inadequate change management as one of the recurring reasons AI pilots fail to scale — not underlying model quality. Trust and capability-building take as long as the technology deployment, usually longer.</p>" + srcLink("mckinsey","McKinsey")
+        },
+        {
+          title:"Value",
+          body:"<p>Proving measurable business impact from O2C transformation is harder than it should be, because the value often shows up in avoided cost — bad debt not written off, disputes not recurring — rather than in a clean, attributable number.</p><p>Nearly two-thirds of organizations in McKinsey's research had not yet scaled AI enterprise-wide, largely because early wins didn't translate into a business case that justified expansion. Building a measurement approach that captures avoided-cost value, not just visible efficiency, is worth doing before the transformation starts — not after the first review meeting asks for it.</p>" + srcLink("mckinsey","McKinsey")
+        }
+      ]
+    }
+  ];
+
+  var SOURCES = [
+    {label:"PwC — Working Capital Study 25/26", url:SRC.pwc},
+    {label:"Gartner — 90% of Finance Functions Will Deploy AI by 2026", url:SRC.gartner90},
+    {label:"Gartner — CFOs Must Pilot Governance First Before Scaling AI Agents", url:SRC.gartnerGov},
+    {label:"Journal of Accountancy — Agentic AI, CFO Trust Survey (2026)", url:SRC.joa},
+    {label:"The Hackett Group — AI World Class Finance Benchmarks", url:SRC.hackett},
+    {label:"KPMG — AI Adoption in Finance Doubles (2026)", url:SRC.kpmg},
+    {label:"McKinsey & Company — How Finance Teams Are Putting AI to Work Today", url:SRC.mckinsey},
+    {label:"NIST — AI Risk Management Framework", url:SRC.nist},
+    {label:"Everest Group — O2C Technology in 2026 (industry analyst)", url:SRC.everest},
+    {label:"Celonis — What Is Process Mining? (vendor)", url:SRC.celonis},
+    {label:"HighRadius — Order-to-Cash Automation Guide (vendor)", url:SRC.highradius}
+  ];
+
+  var CHEV_SVG = '<svg class="chev" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+  var tablist = document.getElementById("tablist");
+  var sectionHead = document.getElementById("section-head");
+  var sectionNote = document.getElementById("section-note");
+  var sectionContent = document.getElementById("section-content");
+  var sourceList = document.getElementById("source-list");
+
+  function el(tag, cls, html){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function buildTabs(){
+    SECTIONS.forEach(function(sec, i){
+      var btn = document.createElement("button");
+      btn.className = "tab";
+      btn.setAttribute("role","tab");
+      btn.setAttribute("id","tab-"+sec.id);
+      btn.setAttribute("aria-controls","panel");
+      btn.setAttribute("aria-selected", i===0 ? "true":"false");
+      btn.setAttribute("tabindex", i===0 ? "0":"-1");
+      btn.innerHTML = '<span class="tab-num">'+(i+1)+'</span>'+sec.label;
+      btn.addEventListener("click", function(){ selectSection(i); });
+      btn.addEventListener("keydown", function(ev){
+        var tabs = tablist.querySelectorAll(".tab");
+        var idx = Array.prototype.indexOf.call(tabs, btn);
+        if(ev.key === "ArrowRight"){ ev.preventDefault(); focusTab((idx+1) % tabs.length); }
+        if(ev.key === "ArrowLeft"){ ev.preventDefault(); focusTab((idx-1+tabs.length) % tabs.length); }
+        if(ev.key === "Home"){ ev.preventDefault(); focusTab(0); }
+        if(ev.key === "End"){ ev.preventDefault(); focusTab(tabs.length-1); }
+      });
+      tablist.appendChild(btn);
+    });
+  }
+
+  function focusTab(idx){
+    var tabs = tablist.querySelectorAll(".tab");
+    tabs[idx].focus();
+    selectSection(idx);
+  }
+
+  function makeToggleCard(bodyHtml, titleHtml, badgeHtml, idBase, idx){
+    var card = el("div","card");
+    var bodyId = idBase+"-body-"+idx;
+    var btn = document.createElement("button");
+    btn.className = "card-toggle";
+    btn.setAttribute("aria-expanded","false");
+    btn.setAttribute("aria-controls", bodyId);
+    btn.innerHTML = '<span><span class="card-toggle-title">'+titleHtml+'</span>'+(badgeHtml||'')+'</span>'+CHEV_SVG;
+    var body = el("div","card-body", bodyHtml);
+    body.id = bodyId;
+    body.hidden = true;
+    btn.addEventListener("click", function(){
+      var expanded = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", expanded ? "false":"true");
+      body.hidden = expanded;
+    });
+    card.appendChild(btn);
+    card.appendChild(body);
+    return card;
+  }
+
+  function renderSection(sec){
+    sectionHead.innerHTML = '<h2>'+sec.heading+'</h2><p>'+sec.intro+'</p>';
+    sectionContent.innerHTML = "";
+    sectionContent.className = "grid";
+
+    if(sec.note){
+      sectionNote.hidden = false;
+      sectionNote.textContent = sec.note;
+    } else {
+      sectionNote.hidden = true;
+      sectionNote.textContent = "";
+    }
+
+    if(sec.type === "cards"){
+      sec.cards.forEach(function(c, i){
+        var badgeHtml = "";
+        if(c.badge){
+          var bc = c.badge === "act" ? "badge-act" : "badge-assist";
+          badgeHtml = '<span class="card-badge '+bc+'">'+c.badgeLabel+'</span>';
+        }
+        sectionContent.appendChild(makeToggleCard(c.body, c.title, badgeHtml, sec.id, i));
+      });
+    }
+
+    if(sec.type === "risk"){
+      sec.cards.forEach(function(c, i){
+        var html = '<span class="label">What it is</span><p>'+c.what+'</p>'+
+                    '<span class="label">Why it matters</span><p>'+c.why+'</p>'+
+                    '<span class="label">What to watch</span><p>'+c.watch+'</p>'+
+                    (c.source || "");
+        sectionContent.appendChild(makeToggleCard(html, c.title, "", sec.id, i));
+      });
+    }
+
+    if(sec.type === "transform"){
+      sec.cards.forEach(function(c, i){
+        var html = '<span class="label">Problem</span><p>'+c.problem+'</p>'+
+                    '<span class="label">Approach</span><p>'+c.approach+'</p>'+
+                    '<span class="label">Potential outcome</span><p>'+c.outcome+'</p>'+
+                    (c.source || "");
+        sectionContent.appendChild(makeToggleCard(html, c.title, "", sec.id, i));
+      });
+    }
+
+    if(sec.type === "leadership"){
+      sectionContent.className = "";
+      sec.clusters.forEach(function(cluster, ci){
+        var wrap = el("div","cluster");
+        wrap.appendChild(el("div","cluster-title", cluster.name));
+        var grid = el("div","grid");
+        cluster.questions.forEach(function(qa, qi){
+          grid.appendChild(makeToggleCard("<p>"+qa.a+"</p>", qa.q, "", sec.id+"-c"+ci, qi));
+        });
+        wrap.appendChild(grid);
+        sectionContent.appendChild(wrap);
+      });
+    }
+  }
+
+  function selectSection(idx){
+    var tabs = tablist.querySelectorAll(".tab");
+    tabs.forEach(function(t, i){
+      t.setAttribute("aria-selected", i===idx ? "true":"false");
+      t.setAttribute("tabindex", i===idx ? "0":"-1");
+    });
+    renderSection(SECTIONS[idx]);
+    sectionContent.setAttribute("tabindex","-1");
+  }
+
+  function buildSources(){
+    SOURCES.forEach(function(s){
+      var li = document.createElement("li");
+      li.innerHTML = '<a href="'+s.url+'" target="_blank" rel="noopener noreferrer">'+s.label+'</a>';
+      sourceList.appendChild(li);
+    });
+  }
+
+  buildTabs();
+  buildSources();
+  selectSection(0);
+
+})();
+</script>
+</body>
+</html>
